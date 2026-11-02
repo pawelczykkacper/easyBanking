@@ -26,6 +26,7 @@ def classify(row):
 def count(rows, start, end):
     result = dict(card=0, blik=0, unknown=0, excluded=0)
     amounts = {}
+    unknown_details = []
     seen = set()
     for row in rows:
         ident = row.get("transaction_id") or row.get("entry_reference")
@@ -42,6 +43,21 @@ def count(rows, start, end):
         if start <= booked <= end:
             kind = classify(row)
             result[kind] += 1
+            if kind == "unknown":
+                info = row.get("remittance_information") or []
+                if isinstance(info, str):
+                    info = [info]
+                code = row.get("bank_transaction_code") or {}
+                description = " · ".join(str(part).strip() for part in
+                    [code.get("description", ""), row.get("note") or "", *info]
+                    if part and str(part).strip()) or "Brak opisu"
+                amount = row.get("transaction_amount") or {}
+                unknown_details.append({
+                    "date": booked.isoformat(),
+                    "description": description[:500],
+                    "amount": amount.get("amount"),
+                    "currency": amount.get("currency"),
+                })
             if kind in ("card", "blik"):
                 amount = row.get("transaction_amount") or {}
                 currency = amount.get("currency")
@@ -54,4 +70,5 @@ def count(rows, start, end):
                     raise ValueError("Payment has invalid amount") from None
                 amounts[currency] = amounts.get(currency, Decimal("0")) + value
     result["amounts"] = amounts
+    result["unknown_details"] = unknown_details
     return result

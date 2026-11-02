@@ -8,6 +8,7 @@ LABELS = {"card": "Płatności kartą", "blik": "Płatności BLIK",
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = entry.runtime_data
     entities = [Counter(coordinator, entry, key, label) for key, label in LABELS.items()]
+    entities.append(UnknownDetailsSensor(coordinator, entry))
     currencies = set(entry.data.get("account_currencies", {}).values())
     currencies.update(coordinator.data.get("amounts", {}))
     entities.extend(AmountSensor(coordinator, entry, currency) for currency in sorted(currencies))
@@ -77,3 +78,39 @@ class AmountSensor(CoordinatorEntity, SensorEntity):
         return {"month": self.coordinator.data["month"],
                 "consent_valid_until": self.coordinator.data["valid_until"],
                 "includes": "zaksięgowane płatności kartą i BLIK"}
+
+
+class UnknownDetailsSensor(CoordinatorEntity, SensorEntity):
+    """Text summary plus detailed attributes for unclassified debits."""
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:text-box-search-outline"
+
+    def __init__(self, coordinator, entry):
+        super().__init__(coordinator)
+        self._attr_name = "Szczegóły nierozpoznanych obciążeń"
+        self._attr_unique_id = f"{entry.entry_id}_unknown_details"
+        self._attr_device_info = {"identifiers": {("enable_banking", entry.entry_id)},
+                                  "name": entry.title, "manufacturer": "Enable Banking"}
+
+    @property
+    def available(self):
+        return super().available and self.coordinator.data["month"] == dt_util.now().strftime("%Y-%m")
+
+    @property
+    def native_value(self):
+        details = self.coordinator.data.get("unknown_details", [])
+        if not details:
+            return "Brak nierozpoznanych obciążeń"
+        snippets = [f"{item['date']} {item['description']}" for item in details[:3]]
+        summary = f"{len(details)} operacji: " + " | ".join(snippets)
+        return summary[:250]
+
+    @property
+    def extra_state_attributes(self):
+        details = self.coordinator.data.get("unknown_details", [])
+        return {
+            "month": self.coordinator.data["month"],
+            "count": len(details),
+            "transactions": details[:100],
+            "truncated": len(details) > 100,
+        }

@@ -1,18 +1,18 @@
 # Enable Banking — liczniki płatności dla Home Assistant OS
 
-Wersja 0.1.7, prototyp do weryfikacji na rzeczywistych danych bankowych.
+Wersja 0.1.8, prototyp do weryfikacji na rzeczywistych danych bankowych.
 Nie jest oficjalną integracją banków ani Enable Banking.
 
 ## Instalacja przez HACS
 
 1. W HACS otwórz menu → Własne repozytoria (Custom repositories).
 2. Dodaj `https://github.com/pawelczykkacper/easyBanking` z typem **Integration**.
-3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.7** i zrestartuj HA.
+3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.8** i zrestartuj HA.
 4. Kontynuuj od kroku 2 instrukcji poniżej (klucz, adres powrotu i konfiguracja).
 
 Jeżeli HACS pokazuje błąd dla starego identyfikatora `35ea96b`, otwórz stronę
 repozytorium w HACS, użyj „Aktualizuj informacje” (Update information), a następnie
-„Pobierz ponownie” (Redownload) i wybierz **v0.1.7**. Jeżeli repozytorium nie jest
+„Pobierz ponownie” (Redownload) i wybierz **v0.1.8**. Jeżeli repozytorium nie jest
 jeszcze zainstalowane i nadal pokazuje starą wersję, usuń je tylko z listy HACS
 i dodaj ponownie jako własne repozytorium typu Integration.
 
@@ -117,7 +117,7 @@ bez połączenia z rzeczywistym bankiem. Nie zastępują instalacji na HA OS.
 
 Błąd `no_banks` przy aktywnej aplikacji mógł wynikać z nieprawidłowego filtra:
 integracja sprawdzała `services` w obiektach banków, choć schemat ASPSPData
-nie zawiera takiego pola. Wersja 0.1.7 wysyła `service=AIS` i `psu_type=personal`
+nie zawiera takiego pola. Wersja 0.1.8 wysyła `service=AIS` i `psu_type=personal`
 bezpośrednio do `/aspsps?country=PL` i używa zwróconej listy bez tego filtra.
 Po aktualizacji zrestartuj HA i ponów dodawanie integracji. Ponowne podłączanie
 rachunków w panelu Enable Banking nie jest wymagane przez tę poprawkę.
@@ -173,3 +173,10 @@ przykładowo HA pokaże osobne sensory PLN i EUR. Suma obejmuje tylko zaksięgow
 obciążenia rozpoznane jako płatność kartą lub BLIK, z tymi samymi wykluczeniami
 co liczniki. Przy dodawaniu transakcji w nowej walucie integracja utworzy sensor
 tej waluty przy następnym odświeżeniu.
+
+
+## Szczegóły nierozpoznanych obciążeń (0.1.8)
+
+Dodano sensor tekstowy pokazujący datę i opis nierozpoznanych obciążeń. Atrybut
+`transactions` zawiera do 100 wpisów z datą, opisem oraz kwotą i walutą, jeśli bank
+je zwrócił. Nie zapisujemy identyfikatorów transakcji ani danych rachunku w sensorze.

@@ -59,5 +59,12 @@
       "reauth_successful": "Autoryzacja została odnowiona.",
       "authorization_pending": "Autoryzacja nie została zakończona. Rozpocznij nową próbę, otwórz link w nowej karcie i dokończ potwierdzenie w Aliorze."
     }
+  },
+  "entity": {
+    "sensor": {
+      "unknown_details": {
+        "name": "Szczegóły nierozpoznanych obciążeń"
+      }
+    }
   }
 }

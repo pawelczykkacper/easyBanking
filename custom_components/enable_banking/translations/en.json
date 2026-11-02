@@ -59,5 +59,12 @@
       "reauth_successful": "Authorization renewed.",
       "authorization_pending": "Bank authorization is still pending. Start a new attempt, open the link in a new tab, and finish the confirmation at your bank."
     }
+  },
+  "entity": {
+    "sensor": {
+      "unknown_details": {
+        "name": "Unrecognized debit details"
+      }
+    }
   }
 }

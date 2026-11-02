@@ -1,0 +1,52 @@
+{
+  "title": "Enable Banking — liczniki płatności",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Połącz Enable Banking",
+        "description": "Wpisz dane aplikacji Production. Klucz .pem musi znajdować się lokalnie w Home Assistant. W Enable Banking dodaj do dozwolonych adresów powrotu: TWOJ_ADRES_HTTPS/api/enable_banking/callback.",
+        "data": {
+          "app_id": "Application ID",
+          "key_path": "Pełna ścieżka do klucza .pem w HA",
+          "base_url": "Adres HTTPS Home Assistant przez Cloudflare (bez ścieżki)"
+        }
+      },
+      "bank": {
+        "title": "Wybierz bank",
+        "description": "Wybierz bank z aktualnej listy Enable Banking. Podczas odnawiania zgody wybierz ten sam bank.",
+        "data": {
+          "bank": "Bank"
+        }
+      },
+      "authorize": {
+        "title": "Autoryzacja w banku",
+        "description": "[Otwórz autoryzację bankową]({auth_url}) w nowej karcie. Po zatwierdzeniu zgody skopiuj CAŁY adres strony powrotu i wklej poniżej. Nie udostępniaj go nikomu.",
+        "data": {
+          "callback_url": "Pełny adres strony po autoryzacji"
+        }
+      },
+      "accounts": {
+        "title": "Wybierz rachunki do liczenia",
+        "description": "Liczniki sumują wybrane rachunki tego banku. Wybierz rachunki płatnicze, których historię chcesz monitorować.",
+        "data": {
+          "accounts": "Rachunki"
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Podaj adres HTTPS bez ścieżki, parametrów i danych logowania.",
+      "invalid_key": "Nie można odczytać klucza .pem. Sprawdź pełną ścieżkę i uprawnienia.",
+      "cannot_connect": "Nie udało się połączyć. Sprawdź Application ID, klucz, adres powrotu i środowisko Production.",
+      "no_banks": "API nie zwróciło polskich banków AIS.",
+      "invalid_callback": "Adres powrotu lub parametr state są nieprawidłowe. Wklej pełny adres z bieżącej autoryzacji.",
+      "select_accounts": "Wybierz co najmniej jeden rachunek.",
+      "wrong_bank": "Przy odnawianiu wybierz bank przypisany do tej integracji."
+    },
+    "abort": {
+      "no_accounts": "Brak rachunków. Dodaj je do tej aplikacji w panelu Enable Banking i ponów konfigurację.",
+      "authorization_failed": "Nie udało się utworzyć sesji. Uruchom konfigurację ponownie, aby uzyskać nową autoryzację.",
+      "already_configured": "Ten bank jest już skonfigurowany dla tej aplikacji.",
+      "reauth_successful": "Autoryzacja została odnowiona."
+    }
+  }
+}

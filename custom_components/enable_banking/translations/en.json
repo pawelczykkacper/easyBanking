@@ -1,0 +1,62 @@
+{
+  "title": "Enable Banking — payment counters",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect Enable Banking",
+        "description": "Enter your Production application details. Store the PEM key locally on Home Assistant. Add YOUR_HTTPS_HA_ADDRESS/api/enable_banking/callback to the application redirect URLs.",
+        "data": {
+          "app_id": "Application ID",
+          "key_path": "Absolute path to the PEM key on HA",
+          "base_url": "Home Assistant HTTPS address (without a path)"
+        }
+      },
+      "bank": {
+        "title": "Select your bank",
+        "description": "Select a bank from the current Enable Banking list. When renewing authorization, select the same bank.",
+        "data": {
+          "bank": "Bank"
+        }
+      },
+      "authorize": {
+        "title": "Authorize access at your bank",
+        "description": "[Open bank authorization]({auth_url}) in a new tab. If the link is missing or does not work, copy the authorization URL from the first field and open it in a new tab. After approving access, copy the ENTIRE return URL from the browser into the callback field below. Keep this form open. Do not share these URLs.",
+        "data": {
+          "authorization_url": "Authorization URL — copy and open in a new tab",
+          "callback_url": "Full return URL after bank authorization"
+        }
+      },
+      "accounts": {
+        "title": "Select accounts to count",
+        "description": "The counters add up the selected accounts at this bank.",
+        "data": {
+          "accounts": "Accounts"
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Enter an HTTPS address without a path, query, fragment or credentials.",
+      "invalid_key": "Cannot read the PEM file. Check its absolute path and permissions.",
+      "cannot_connect": "Cannot connect to Enable Banking.",
+      "no_banks": "The API returned no Polish AIS banks.",
+      "invalid_callback": "Invalid return URL or state. Paste the entire return URL from this authorization attempt, including code and state.",
+      "select_accounts": "Select at least one account.",
+      "wrong_bank": "Select the bank belonging to this integration entry.",
+      "api_error": "Enable Banking rejected the request: {error_detail}. Report this code when requesting help.",
+      "invalid_auth": "Enable Banking returned HTTP 401. Check that the application ID and private key belong to the same application. Also check the HA clock.",
+      "access_denied": "Enable Banking returned HTTP 403 ({error_detail}). Check application activation and AIS permissions.",
+      "redirect_not_allowed": "The redirect URL is not allowed. Add your exact HA HTTPS address followed by /api/enable_banking/callback to the Enable Banking application.",
+      "rate_limited": "Request limit exceeded (HTTP 429). Wait before retrying.",
+      "invalid_key_format": "The file is not a usable private RSA PEM key, or is encrypted. Use the key generated for this application.",
+      "request_timeout": "The request to Enable Banking timed out. Try again later.",
+      "network_error": "HA cannot reach Enable Banking. Check DNS, internet access and TLS certificates.",
+      "unexpected_response": "Unexpected API response or invalid data format. Check the enable_banking log and report the issue."
+    },
+    "abort": {
+      "no_accounts": "No accounts returned. Link your accounts to this application in Enable Banking and retry.",
+      "authorization_failed": "Could not create a session. Restart configuration to obtain a new authorization code.",
+      "already_configured": "This bank is already configured for this application.",
+      "reauth_successful": "Authorization renewed."
+    }
+  }
+}

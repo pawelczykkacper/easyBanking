@@ -59,6 +59,20 @@ class ConfigFlowTests(unittest.IsolatedAsyncioTestCase):
                 "key_path": "/config/key.pem", "base_url": "https://ha.example"})
         self.assertEqual(result["errors"], {"base": "no_banks"})
 
+    async def test_authorization_url_is_visible_in_form_field(self):
+        flow = self.flow()
+        flow.settings = {"base_url": "https://ha.example"}
+        flow.banks = {"Bank Millennium": {"maximum_consent_validity": 86400}}
+        url = "https://auth.example/authorize/test"
+        flow.client = SimpleNamespace(request=AsyncMock(return_value={"url": url}))
+        result = await flow.async_step_bank({"bank": "Bank Millennium"})
+        self.assertEqual(result["step_id"], "authorize")
+        data = self.serialize(result)
+        fields = {field["name"]: field for field in data["data_schema"]}
+        self.assertEqual(fields["authorization_url"]["default"], url)
+        self.assertIn("callback_url", fields)
+        self.assertEqual(result["description_placeholders"]["auth_url"], url)
+
     async def test_authorization_reports_rejected_redirect(self):
         flow = self.flow()
         flow.settings = {"base_url": "https://ha.example"}

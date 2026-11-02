@@ -6,6 +6,15 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 class PackagingTests(unittest.TestCase):
+    def test_authorization_translations_include_english_fallback(self):
+        base = ROOT / "custom_components/enable_banking/translations"
+        for language in ("en", "pl"):
+            translation = json.loads((base / f"{language}.json").read_text())
+            step = translation["config"]["step"]["authorize"]
+            self.assertIn("{auth_url}", step["description"])
+            self.assertTrue(step["data"]["authorization_url"])
+            self.assertTrue(step["data"]["callback_url"])
+
     def test_no_override_of_core_pyjwt(self):
         manifest = json.loads((ROOT / "custom_components/enable_banking/manifest.json").read_text())
         self.assertFalse(any(item.lower().startswith("pyjwt") for item in manifest.get("requirements", [])))

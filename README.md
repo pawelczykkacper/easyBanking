@@ -1,18 +1,18 @@
 # Enable Banking — liczniki płatności dla Home Assistant OS
 
-Wersja 0.1.4, prototyp do weryfikacji na rzeczywistych danych bankowych.
+Wersja 0.1.5, prototyp do weryfikacji na rzeczywistych danych bankowych.
 Nie jest oficjalną integracją banków ani Enable Banking.
 
 ## Instalacja przez HACS
 
 1. W HACS otwórz menu → Własne repozytoria (Custom repositories).
 2. Dodaj `https://github.com/pawelczykkacper/easyBanking` z typem **Integration**.
-3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.4** i zrestartuj HA.
+3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.5** i zrestartuj HA.
 4. Kontynuuj od kroku 2 instrukcji poniżej (klucz, adres powrotu i konfiguracja).
 
 Jeżeli HACS pokazuje błąd dla starego identyfikatora `35ea96b`, otwórz stronę
 repozytorium w HACS, użyj „Aktualizuj informacje” (Update information), a następnie
-„Pobierz ponownie” (Redownload) i wybierz **v0.1.4**. Jeżeli repozytorium nie jest
+„Pobierz ponownie” (Redownload) i wybierz **v0.1.5**. Jeżeli repozytorium nie jest
 jeszcze zainstalowane i nadal pokazuje starą wersję, usuń je tylko z listy HACS
 i dodaj ponownie jako własne repozytorium typu Integration.
 
@@ -116,7 +116,7 @@ bez połączenia z rzeczywistym bankiem. Nie zastępują instalacji na HA OS.
 
 Błąd `no_banks` przy aktywnej aplikacji mógł wynikać z nieprawidłowego filtra:
 integracja sprawdzała `services` w obiektach banków, choć schemat ASPSPData
-nie zawiera takiego pola. Wersja 0.1.4 wysyła `service=AIS` i `psu_type=personal`
+nie zawiera takiego pola. Wersja 0.1.5 wysyła `service=AIS` i `psu_type=personal`
 bezpośrednio do `/aspsps?country=PL` i używa zwróconej listy bez tego filtra.
 Po aktualizacji zrestartuj HA i ponów dodawanie integracji. Ponowne podłączanie
 rachunków w panelu Enable Banking nie jest wymagane przez tę poprawkę.
@@ -134,3 +134,18 @@ Po aktualizacji i restarcie HA ponów ten sam krok. Jeśli błąd pozostaje, prz
 nowy komunikat i etap formularza. Nie trzeba ponownie podłączać kont w panelu EB.
 Ta wersja poprawia diagnostykę; nie potwierdza przyczyny wcześniejszego błędu
 `cannot_connect` i nie zmienia ustawień aplikacji po stronie Enable Banking.
+
+## Brak linku do autoryzacji (0.1.5)
+
+Integracja zawiera teraz kompletne `translations/en.json`, wymagane jako język
+zapasowy dla integracji niestandardowej. Sam `strings.json` nie zapewnia tłumaczeń
+w działającym HA. Polski interfejs nadal korzysta z `translations/pl.json`.
+
+Po wybraniu banku formularz pokazuje także osobne pole z adresem autoryzacji.
+Jeśli link w opisie jest niewidoczny, skopiuj adres z pierwszego pola i otwórz go
+w nowej karcie. Nie wpisuj go w pole callback. Po zgodzie w banku skopiuj pełny
+adres powrotu z `code` i `state` do drugiego pola. Pierwsze pole jest tylko do
+kopiowania; zmiany jego zawartości nie wpływają na żądania API.
+
+Po aktualizacji zrestartuj HA, odśwież stronę w przeglądarce i rozpocznij nową
+konfigurację. Nie używaj adresu powrotu z wcześniejszej próby.

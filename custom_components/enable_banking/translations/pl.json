@@ -20,9 +20,10 @@
       },
       "authorize": {
         "title": "Autoryzacja w banku",
-        "description": "[Otwórz autoryzację bankową]({auth_url}) w nowej karcie. Po zatwierdzeniu zgody skopiuj CAŁY adres strony powrotu i wklej poniżej. Nie udostępniaj go nikomu.",
+        "description": "[Otwórz autoryzację bankową]({auth_url}) w nowej karcie. Jeśli link nie jest widoczny lub nie działa, skopiuj adres z pola „Adres autoryzacji” i otwórz go w nowej karcie. Po zgodzie w banku skopiuj CAŁY adres strony powrotu do pola poniżej. Pozostaw ten formularz otwarty.",
         "data": {
-          "callback_url": "Pełny adres strony po autoryzacji"
+          "callback_url": "Pełny adres strony po autoryzacji",
+          "authorization_url": "Adres autoryzacji — skopiuj i otwórz w nowej karcie"
         }
       },
       "accounts": {

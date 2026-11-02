@@ -134,6 +134,7 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 except (ApiError, ClientError, TimeoutError, ValueError, KeyError, OSError):
                     return self.async_abort(reason="authorization_failed")
         return self.async_show_form(step_id="authorize", data_schema=vol.Schema({
+            vol.Optional("authorization_url", default=self.auth_url): str,
             vol.Required("callback_url"): str,
         }), description_placeholders={"auth_url": self.auth_url}, errors=errors)
 

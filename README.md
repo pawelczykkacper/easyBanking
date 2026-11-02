@@ -1,18 +1,18 @@
 # Enable Banking — liczniki płatności dla Home Assistant OS
 
-Wersja 0.1.1, prototyp do weryfikacji na rzeczywistych danych bankowych.
+Wersja 0.1.2, prototyp do weryfikacji na rzeczywistych danych bankowych.
 Nie jest oficjalną integracją banków ani Enable Banking.
 
 ## Instalacja przez HACS
 
 1. W HACS otwórz menu → Własne repozytoria (Custom repositories).
 2. Dodaj `https://github.com/pawelczykkacper/easyBanking` z typem **Integration**.
-3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.1** i zrestartuj HA.
+3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.2** i zrestartuj HA.
 4. Kontynuuj od kroku 2 instrukcji poniżej (klucz, adres powrotu i konfiguracja).
 
 Jeżeli HACS pokazuje błąd dla starego identyfikatora `35ea96b`, otwórz stronę
 repozytorium w HACS, użyj „Aktualizuj informacje” (Update information), a następnie
-„Pobierz ponownie” (Redownload) i wybierz **v0.1.1**. Jeżeli repozytorium nie jest
+„Pobierz ponownie” (Redownload) i wybierz **v0.1.2**. Jeżeli repozytorium nie jest
 jeszcze zainstalowane i nadal pokazuje starą wersję, usuń je tylko z listy HACS
 i dodaj ponownie jako własne repozytorium typu Integration.
 
@@ -96,3 +96,18 @@ rzeczywistych kontach. To wymaga Twojej instalacji, klucza oraz zgody w banku.
 
 Dokumentacja: https://enablebanking.com/docs/api/quick-start/
 Specyfikacja danych: https://enablebanking.com/docs/api/reference/
+
+## Zgodność i testy
+
+Poprawka 0.1.2 usuwa wymaganie PyJWT 2.10.1, które kolidowało z PyJWT 2.15.1
+w Home Assistant Core 2026.10.4. Integracja korzysta z PyJWT dostarczanego przez
+Core. Formularze korzystają z probatio, z fallbackiem do voluptuous w starszym HA.
+
+Po aktualizacji przez HACS do v0.1.2 zrestartuj Home Assistant przed ponownym
+otwarciem formularza. Jeśli pozostaje błąd 500, sprawdź pełny traceback
+w Ustawienia → System → Dzienniki: sam kod HTTP nie identyfikuje przyczyny.
+
+Testy logiki i pakowania: `python -B -m unittest discover -s tests -v`.
+Testy formularzy wymagają zainstalowanego Home Assistant; bez niego są pomijane.
+Testy obejmują serializację formularzy do formatu używanego przez frontend HA,
+bez połączenia z rzeczywistym bankiem. Nie zastępują instalacji na HA OS.

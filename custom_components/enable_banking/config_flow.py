@@ -2,7 +2,10 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import secrets
 from urllib.parse import urlsplit, parse_qs
-import voluptuous as vol
+try:
+    import probatio as vol
+except ImportError:  # Home Assistant versions that still use voluptuous
+    import voluptuous as vol
 from aiohttp import ClientError
 from homeassistant import config_entries
 from homeassistant.helpers import selector

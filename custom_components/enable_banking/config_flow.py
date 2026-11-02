@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import secrets
+import logging
 from urllib.parse import urlsplit, parse_qs
 try:
     import probatio as vol
@@ -11,8 +12,10 @@ from homeassistant import config_entries
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from . import register_view
-from .api import Client, ApiError
+from .api import Client, ApiError, InvalidKey
 from .const import DOMAIN, CALLBACK
+
+_LOGGER = logging.getLogger(__name__)
 
 class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
@@ -22,6 +25,32 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.banks = {}
         self.session_data = {}
         self.target_entry = None
+        self.error_detail = ""
+
+    def _connection_error(self, err, stage):
+        if isinstance(err, ApiError):
+            self.error_detail = f"HTTP {err.status}, {err.code}"
+            _LOGGER.warning("Enable Banking %s failed: HTTP %s (%s)", stage, err.status, err.code)
+            if err.code == "REDIRECT_URI_NOT_ALLOWED":
+                return "redirect_not_allowed"
+            if err.status == 401:
+                return "invalid_auth"
+            if err.status == 403:
+                return "access_denied"
+            if err.status == 429:
+                return "rate_limited"
+            return "api_error"
+        # Never log exception text, key paths, request URLs, tokens or bodies.
+        _LOGGER.warning("Enable Banking %s failed: %s", stage, type(err).__name__)
+        if isinstance(err, InvalidKey):
+            return "invalid_key_format"
+        if isinstance(err, TimeoutError):
+            return "request_timeout"
+        if isinstance(err, ClientError):
+            return "network_error"
+        if isinstance(err, OSError):
+            return "invalid_key"
+        return "unexpected_response"
 
     async def async_step_reauth(self, entry_data):
         self.target_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
@@ -49,15 +78,13 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         errors["base"] = "no_banks"
                     else:
                         return await self.async_step_bank()
-                except OSError:
-                    errors["base"] = "invalid_key"
-                except (ApiError, ClientError, TimeoutError, ValueError, KeyError):
-                    errors["base"] = "cannot_connect"
+                except (ApiError, ClientError, TimeoutError, OSError, ValueError, KeyError, TypeError) as err:
+                    errors["base"] = self._connection_error(err, "list_banks")
         return self.async_show_form(step_id="user", data_schema=vol.Schema({
             vol.Required("app_id", default=self.settings.get("app_id", "")): str,
             vol.Required("key_path", default=self.settings.get("key_path", "/config/enable_banking.pem")): str,
             vol.Required("base_url", default=self.settings.get("base_url", "https://ha.twoja-domena.pl")): str,
-        }), errors=errors)
+        }), errors=errors, description_placeholders={"error_detail": self.error_detail})
 
     async def async_step_bank(self, user_input=None):
         errors = {}
@@ -73,16 +100,16 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.valid_until = (datetime.now(timezone.utc) + timedelta(seconds=min(maximum, 180*86400)-60)).isoformat()
                 try:
                     data = await self.client.request("POST", "/auth", json={
-                        "access": {"valid_until": (self.session_data.get("access") or {}).get("valid_until", self.valid_until)},
+                        "access": {"valid_until": self.valid_until},
                         "aspsp": {"name": name, "country": "PL"},
                         "state": self.state, "redirect_url": self.redirect, "psu_type": "personal"})
                     self.auth_url = data["url"]
                     return await self.async_step_authorize()
-                except (ApiError, ClientError, TimeoutError, ValueError, KeyError, OSError):
-                    errors["base"] = "cannot_connect"
+                except (ApiError, ClientError, TimeoutError, ValueError, KeyError, OSError, TypeError) as err:
+                    errors["base"] = self._connection_error(err, "start_authorization")
         return self.async_show_form(step_id="bank", data_schema=vol.Schema({
             vol.Required("bank"): selector.SelectSelector(selector.SelectSelectorConfig(options=sorted(self.banks), mode=selector.SelectSelectorMode.DROPDOWN))
-        }), errors=errors)
+        }), errors=errors, description_placeholders={"error_detail": self.error_detail})
 
     async def async_step_authorize(self, user_input=None):
         errors = {}
@@ -134,4 +161,4 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(title=self.bank, data=data)
         return self.async_show_form(step_id="accounts", data_schema=vol.Schema({
             vol.Required("accounts"): selector.SelectSelector(selector.SelectSelectorConfig(options=options, multiple=True))
-        }), errors=errors)
+        }), errors=errors, description_placeholders={"error_detail": self.error_detail})

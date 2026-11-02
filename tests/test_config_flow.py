@@ -12,6 +12,7 @@ if HAS_HA:
     import jwt
     from homeassistant.helpers.data_entry_flow import _BaseFlowManagerView
     from custom_components.enable_banking.config_flow import BankingFlow
+    from custom_components.enable_banking.api import ApiError, InvalidKey
 
 @unittest.skipUnless(HAS_HA, "Install Home Assistant to run config flow tests")
 class ConfigFlowTests(unittest.IsolatedAsyncioTestCase):
@@ -57,6 +58,34 @@ class ConfigFlowTests(unittest.IsolatedAsyncioTestCase):
             result = await flow.async_step_user({"app_id": "test-id",
                 "key_path": "/config/key.pem", "base_url": "https://ha.example"})
         self.assertEqual(result["errors"], {"base": "no_banks"})
+
+    async def test_authorization_reports_rejected_redirect(self):
+        flow = self.flow()
+        flow.settings = {"base_url": "https://ha.example"}
+        flow.banks = {"Bank Millennium": {"maximum_consent_validity": 86400}}
+        flow.client = SimpleNamespace(request=AsyncMock(side_effect=ApiError(400, "REDIRECT_URI_NOT_ALLOWED")))
+        result = await flow.async_step_bank({"bank": "Bank Millennium"})
+        self.assertEqual(result["errors"], {"base": "redirect_not_allowed"})
+        self.assertEqual(result["description_placeholders"]["error_detail"], "HTTP 400, REDIRECT_URI_NOT_ALLOWED")
+        self.serialize(result)
+
+    def test_connection_failures_are_distinct_and_safe(self):
+        from aiohttp import ClientConnectionError
+        flow = self.flow()
+        cases = [(ApiError(401), "invalid_auth"), (ApiError(403), "access_denied"),
+                 (ApiError(429), "rate_limited"), (ApiError(500), "api_error"),
+                 (InvalidKey("secret"), "invalid_key_format"),
+                 (TimeoutError("secret"), "request_timeout"),
+                 (ClientConnectionError("secret"), "network_error"),
+                 (OSError("secret"), "invalid_key"), (ValueError("secret"), "unexpected_response")]
+        for error, expected in cases:
+            with self.subTest(expected=expected), self.assertLogs("custom_components.enable_banking.config_flow") as logs:
+                self.assertEqual(flow._connection_error(error, "test"), expected)
+            self.assertNotIn("secret", str(logs.output))
+
+    def test_api_error_drops_unrecognized_body_codes(self):
+        self.assertEqual(ApiError(400, "token-secret").code, "UNKNOWN")
+        self.assertNotIn("token-secret", str(ApiError(400, "token-secret")))
 
     async def test_bank_selector_serializes(self):
         flow = self.flow()

@@ -1,18 +1,18 @@
 # Enable Banking — liczniki płatności dla Home Assistant OS
 
-Wersja 0.1.3, prototyp do weryfikacji na rzeczywistych danych bankowych.
+Wersja 0.1.4, prototyp do weryfikacji na rzeczywistych danych bankowych.
 Nie jest oficjalną integracją banków ani Enable Banking.
 
 ## Instalacja przez HACS
 
 1. W HACS otwórz menu → Własne repozytoria (Custom repositories).
 2. Dodaj `https://github.com/pawelczykkacper/easyBanking` z typem **Integration**.
-3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.3** i zrestartuj HA.
+3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.4** i zrestartuj HA.
 4. Kontynuuj od kroku 2 instrukcji poniżej (klucz, adres powrotu i konfiguracja).
 
 Jeżeli HACS pokazuje błąd dla starego identyfikatora `35ea96b`, otwórz stronę
 repozytorium w HACS, użyj „Aktualizuj informacje” (Update information), a następnie
-„Pobierz ponownie” (Redownload) i wybierz **v0.1.3**. Jeżeli repozytorium nie jest
+„Pobierz ponownie” (Redownload) i wybierz **v0.1.4**. Jeżeli repozytorium nie jest
 jeszcze zainstalowane i nadal pokazuje starą wersję, usuń je tylko z listy HACS
 i dodaj ponownie jako własne repozytorium typu Integration.
 
@@ -116,7 +116,21 @@ bez połączenia z rzeczywistym bankiem. Nie zastępują instalacji na HA OS.
 
 Błąd `no_banks` przy aktywnej aplikacji mógł wynikać z nieprawidłowego filtra:
 integracja sprawdzała `services` w obiektach banków, choć schemat ASPSPData
-nie zawiera takiego pola. Wersja 0.1.3 wysyła `service=AIS` i `psu_type=personal`
+nie zawiera takiego pola. Wersja 0.1.4 wysyła `service=AIS` i `psu_type=personal`
 bezpośrednio do `/aspsps?country=PL` i używa zwróconej listy bez tego filtra.
 Po aktualizacji zrestartuj HA i ponów dodawanie integracji. Ponowne podłączanie
 rachunków w panelu Enable Banking nie jest wymagane przez tę poprawkę.
+
+## Diagnostyka połączenia (0.1.4)
+
+Zamiast ogólnego `cannot_connect` formularz rozróżnia HTTP 401 (autoryzacja
+aplikacji), HTTP 403 (uprawnienia), HTTP 429 (limit), niedozwolony adres powrotu,
+niepoprawny format klucza, timeout, błąd sieci oraz nieoczekiwaną odpowiedź API.
+Pozostałe błędy HTTP pokazują status i rozpoznany symboliczny kod Enable Banking.
+Log integracji zawiera tylko etap, status HTTP i kod z zamkniętej listy lub nazwę
+klasy wyjątku. Nie zapisuje treści błędu serwera, adresów, kluczy ani tokenów.
+
+Po aktualizacji i restarcie HA ponów ten sam krok. Jeśli błąd pozostaje, przekaż
+nowy komunikat i etap formularza. Nie trzeba ponownie podłączać kont w panelu EB.
+Ta wersja poprawia diagnostykę; nie potwierdza przyczyny wcześniejszego błędu
+`cannot_connect` i nie zmienia ustawień aplikacji po stronie Enable Banking.

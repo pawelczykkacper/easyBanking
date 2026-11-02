@@ -3,11 +3,25 @@ import asyncio
 from pathlib import Path
 import time
 import jwt
+from aiohttp import ContentTypeError
+
+# Retain only documented symbolic codes; never retain message/detail bodies.
+SAFE_ERROR_CODES = frozenset({
+    "ACCESS_DENIED", "ASPSP_ERROR", "ASPSP_TIMEOUT", "ASPSP_RATE_LIMIT_EXCEEDED",
+    "AUTHORIZATION_NOT_PROVIDED", "EXPIRED_AUTHORIZATION_CODE", "EXPIRED_SESSION",
+    "NO_ACCOUNTS_ADDED", "PSU_HEADER_INVALID", "PSU_HEADER_NOT_PROVIDED",
+    "REDIRECT_URI_NOT_ALLOWED", "UNAUTHORIZED_ACCESS", "UNAUTHORIZED_IP",
+    "WRONG_ASPSP_PROVIDED", "WRONG_AUTHORIZATION_CODE", "WRONG_REQUEST_PARAMETERS",
+})
+
+class InvalidKey(ValueError):
+    """The local PEM cannot be used to sign a request."""
 
 class ApiError(Exception):
-    def __init__(self, status):
+    def __init__(self, status, code=None):
         self.status = status
-        super().__init__(f"Enable Banking HTTP {status}")
+        self.code = code if isinstance(code, str) and code in SAFE_ERROR_CODES else "UNKNOWN"
+        super().__init__(f"Enable Banking HTTP {status} ({self.code})")
 
 class Client:
     def __init__(self, hass, session, app_id, key_path):
@@ -24,13 +38,18 @@ class Client:
     async def request(self, method, path, **kwargs):
         try:
             token = await self.hass.async_add_executor_job(self._token)
-        except jwt.PyJWTError as err:
-            raise ValueError("Invalid application key") from err
+        except (jwt.PyJWTError, ValueError, TypeError) as err:
+            raise InvalidKey("Invalid application key") from err
         async with asyncio.timeout(60):
             async with self.session.request(method, "https://api.enablebanking.com" + path,
                     headers={"Authorization": "Bearer " + token}, **kwargs) as resp:
                 if resp.status >= 400:
-                    raise ApiError(resp.status)
+                    try:
+                        body = await resp.json()
+                        code = body.get("error") if isinstance(body, dict) else None
+                    except (ValueError, ContentTypeError):
+                        code = None
+                    raise ApiError(resp.status, code)
                 return await resp.json()
 
     async def transactions(self, uid, start, end):

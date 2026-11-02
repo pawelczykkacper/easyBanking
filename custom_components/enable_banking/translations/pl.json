@@ -40,7 +40,16 @@
       "no_banks": "API nie zwróciło polskich banków AIS.",
       "invalid_callback": "Adres powrotu lub parametr state są nieprawidłowe. Wklej pełny adres z bieżącej autoryzacji.",
       "select_accounts": "Wybierz co najmniej jeden rachunek.",
-      "wrong_bank": "Przy odnawianiu wybierz bank przypisany do tej integracji."
+      "wrong_bank": "Przy odnawianiu wybierz bank przypisany do tej integracji.",
+      "api_error": "Enable Banking odrzuciło żądanie: {error_detail}. Podaj ten kod przy zgłaszaniu problemu.",
+      "invalid_auth": "Enable Banking zwróciło HTTP 401. Sprawdź, czy Application ID i plik klucza pochodzą z tej samej aplikacji. Sprawdź też zegar HA.",
+      "access_denied": "Enable Banking zwróciło HTTP 403 ({error_detail}). Sprawdź aktywację aplikacji i uprawnienie AIS.",
+      "redirect_not_allowed": "Adres powrotu jest niedozwolony. W aplikacji Enable Banking dodaj dokładnie adres HTTPS HA zakończony /api/enable_banking/callback.",
+      "rate_limited": "Przekroczono limit żądań (HTTP 429). Odczekaj przed kolejną próbą.",
+      "invalid_key_format": "Plik klucza nie jest poprawnym prywatnym kluczem RSA PEM lub jest zaszyfrowany. Użyj klucza pobranego dla tej aplikacji.",
+      "request_timeout": "Przekroczono czas połączenia z Enable Banking. Spróbuj ponownie później.",
+      "network_error": "HA nie może połączyć się z Enable Banking. Sprawdź DNS, internet i certyfikaty TLS w HA.",
+      "unexpected_response": "Nieprawidłowa odpowiedź API lub nieprawidłowy format danych. Sprawdź dziennik enable_banking i zgłoś problem."
     },
     "abort": {
       "no_accounts": "Brak rachunków. Dodaj je do tej aplikacji w panelu Enable Banking i ponów konfigurację.",

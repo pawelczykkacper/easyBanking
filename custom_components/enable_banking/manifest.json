@@ -1,9 +1,9 @@
 {
   "domain": "enable_banking",
-  "name": "Enable Banking \u2014 liczniki p\u0142atno\u015bci",
-  "version": "0.1.0",
+  "name": "Enable Banking — liczniki płatności",
+  "version": "0.1.1",
   "config_flow": true,
-  "documentation": "https://enablebanking.com/docs/api/",
+  "documentation": "https://github.com/pawelczykkacper/easyBanking",
   "iot_class": "cloud_polling",
   "requirements": [
     "PyJWT==2.10.1"
@@ -11,5 +11,8 @@
   "dependencies": [
     "http"
   ],
-  "codeowners": []
+  "codeowners": [
+    "@pawelczykkacper"
+  ],
+  "issue_tracker": "https://github.com/pawelczykkacper/easyBanking/issues"
 }

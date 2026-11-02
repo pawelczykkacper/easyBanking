@@ -1,9 +1,22 @@
 # Enable Banking — liczniki płatności dla Home Assistant OS
 
-Wersja 0.1.0, prototyp do weryfikacji na rzeczywistych danych bankowych.
+Wersja 0.1.1, prototyp do weryfikacji na rzeczywistych danych bankowych.
 Nie jest oficjalną integracją banków ani Enable Banking.
 
-## Instalacja
+## Instalacja przez HACS
+
+1. W HACS otwórz menu → Własne repozytoria (Custom repositories).
+2. Dodaj `https://github.com/pawelczykkacper/easyBanking` z typem **Integration**.
+3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.1** i zrestartuj HA.
+4. Kontynuuj od kroku 2 instrukcji poniżej (klucz, adres powrotu i konfiguracja).
+
+Jeżeli HACS pokazuje błąd dla starego identyfikatora `35ea96b`, otwórz stronę
+repozytorium w HACS, użyj „Aktualizuj informacje” (Update information), a następnie
+„Pobierz ponownie” (Redownload) i wybierz **v0.1.1**. Jeżeli repozytorium nie jest
+jeszcze zainstalowane i nadal pokazuje starą wersję, usuń je tylko z listy HACS
+i dodaj ponownie jako własne repozytorium typu Integration.
+
+## Instalacja ręczna
 
 1. Pobierz repozytorium (Code → Download ZIP) i rozpakuj. Skopiuj folder `custom_components/enable_banking` do
    `/config/custom_components/enable_banking` w Home Assistant (np. przez dodatek Samba).

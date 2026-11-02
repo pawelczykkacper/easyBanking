@@ -157,3 +157,8 @@ Jeśli odpowiedź z `/sessions` wskazuje `PENDING_AUTHORIZATION`, HA pokaże oso
 informację o niedokończonym potwierdzeniu zamiast ogólnego błędu braku rachunków.
 Log Enable Banking `PENDING_AUTHORIZATION` oznacza, że użytkownik musi dokończyć
 autoryzację; puste `account_ids` są spodziewane przed jej zakończeniem.
+
+
+## Icon
+
+Source SVG for the piggy bank and coin icon: `custom_components/enable_banking/assets/piggy-bank.svg`.

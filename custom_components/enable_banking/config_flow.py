@@ -42,8 +42,9 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.settings["base_url"] = user_input["base_url"].rstrip("/")
                 self.client = Client(self.hass, async_get_clientsession(self.hass), user_input["app_id"].strip(), user_input["key_path"])
                 try:
-                    response = await self.client.request("GET", "/aspsps", params={"country": "PL"})
-                    self.banks = {b["name"]: b for b in response["aspsps"] if "AIS" in b.get("services", [])}
+                    response = await self.client.request("GET", "/aspsps", params={"country": "PL", "service": "AIS", "psu_type": "personal"})
+                    # ASPSPData has no services field; filter AIS on the API request.
+                    self.banks = {b["name"]: b for b in response["aspsps"]}
                     if not self.banks:
                         errors["base"] = "no_banks"
                     else:

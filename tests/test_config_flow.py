@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, AsyncMock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 HAS_HA = importlib.util.find_spec("homeassistant") is not None
@@ -32,6 +32,31 @@ class ConfigFlowTests(unittest.IsolatedAsyncioTestCase):
         flow.hass.http.register_view.assert_called_once()
         await flow.async_step_user()
         flow.hass.http.register_view.assert_called_once()
+
+    async def test_documented_bank_response_without_services(self):
+        flow = self.flow()
+        bank = {"name": "Bank Millennium", "country": "PL",
+                "maximum_consent_validity": 15552000, "auth_methods": []}
+        request = AsyncMock(return_value={"aspsps": [bank]})
+        with patch("custom_components.enable_banking.config_flow.async_get_clientsession"), \
+             patch("custom_components.enable_banking.config_flow.Client") as client:
+            client.return_value.request = request
+            result = await flow.async_step_user({"app_id": "test-id",
+                "key_path": "/config/key.pem", "base_url": "https://ha.example"})
+        self.assertEqual(result["step_id"], "bank")
+        self.assertEqual(flow.banks, {"Bank Millennium": bank})
+        request.assert_awaited_once_with("GET", "/aspsps", params={
+            "country": "PL", "service": "AIS", "psu_type": "personal"})
+        self.serialize(result)
+
+    async def test_empty_bank_response_shows_no_banks(self):
+        flow = self.flow()
+        with patch("custom_components.enable_banking.config_flow.async_get_clientsession"), \
+             patch("custom_components.enable_banking.config_flow.Client") as client:
+            client.return_value.request = AsyncMock(return_value={"aspsps": []})
+            result = await flow.async_step_user({"app_id": "test-id",
+                "key_path": "/config/key.pem", "base_url": "https://ha.example"})
+        self.assertEqual(result["errors"], {"base": "no_banks"})
 
     async def test_bank_selector_serializes(self):
         flow = self.flow()

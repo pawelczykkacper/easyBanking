@@ -1,18 +1,18 @@
 # Enable Banking — liczniki płatności dla Home Assistant OS
 
-Wersja 0.1.2, prototyp do weryfikacji na rzeczywistych danych bankowych.
+Wersja 0.1.3, prototyp do weryfikacji na rzeczywistych danych bankowych.
 Nie jest oficjalną integracją banków ani Enable Banking.
 
 ## Instalacja przez HACS
 
 1. W HACS otwórz menu → Własne repozytoria (Custom repositories).
 2. Dodaj `https://github.com/pawelczykkacper/easyBanking` z typem **Integration**.
-3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.2** i zrestartuj HA.
+3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.3** i zrestartuj HA.
 4. Kontynuuj od kroku 2 instrukcji poniżej (klucz, adres powrotu i konfiguracja).
 
 Jeżeli HACS pokazuje błąd dla starego identyfikatora `35ea96b`, otwórz stronę
 repozytorium w HACS, użyj „Aktualizuj informacje” (Update information), a następnie
-„Pobierz ponownie” (Redownload) i wybierz **v0.1.2**. Jeżeli repozytorium nie jest
+„Pobierz ponownie” (Redownload) i wybierz **v0.1.3**. Jeżeli repozytorium nie jest
 jeszcze zainstalowane i nadal pokazuje starą wersję, usuń je tylko z listy HACS
 i dodaj ponownie jako własne repozytorium typu Integration.
 
@@ -111,3 +111,12 @@ Testy logiki i pakowania: `python -B -m unittest discover -s tests -v`.
 Testy formularzy wymagają zainstalowanego Home Assistant; bez niego są pomijane.
 Testy obejmują serializację formularzy do formatu używanego przez frontend HA,
 bez połączenia z rzeczywistym bankiem. Nie zastępują instalacji na HA OS.
+
+## Poprawka listy banków (0.1.3)
+
+Błąd `no_banks` przy aktywnej aplikacji mógł wynikać z nieprawidłowego filtra:
+integracja sprawdzała `services` w obiektach banków, choć schemat ASPSPData
+nie zawiera takiego pola. Wersja 0.1.3 wysyła `service=AIS` i `psu_type=personal`
+bezpośrednio do `/aspsps?country=PL` i używa zwróconej listy bez tego filtra.
+Po aktualizacji zrestartuj HA i ponów dodawanie integracji. Ponowne podłączanie
+rachunków w panelu Enable Banking nie jest wymagane przez tę poprawkę.

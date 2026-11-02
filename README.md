@@ -1,18 +1,18 @@
 # Enable Banking — liczniki płatności dla Home Assistant OS
 
-Wersja 0.1.6, prototyp do weryfikacji na rzeczywistych danych bankowych.
+Wersja 0.1.7, prototyp do weryfikacji na rzeczywistych danych bankowych.
 Nie jest oficjalną integracją banków ani Enable Banking.
 
 ## Instalacja przez HACS
 
 1. W HACS otwórz menu → Własne repozytoria (Custom repositories).
 2. Dodaj `https://github.com/pawelczykkacper/easyBanking` z typem **Integration**.
-3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.6** i zrestartuj HA.
+3. Wyszukaj **Easy Banking**, pobierz najnowsze wydanie **v0.1.7** i zrestartuj HA.
 4. Kontynuuj od kroku 2 instrukcji poniżej (klucz, adres powrotu i konfiguracja).
 
 Jeżeli HACS pokazuje błąd dla starego identyfikatora `35ea96b`, otwórz stronę
 repozytorium w HACS, użyj „Aktualizuj informacje” (Update information), a następnie
-„Pobierz ponownie” (Redownload) i wybierz **v0.1.6**. Jeżeli repozytorium nie jest
+„Pobierz ponownie” (Redownload) i wybierz **v0.1.7**. Jeżeli repozytorium nie jest
 jeszcze zainstalowane i nadal pokazuje starą wersję, usuń je tylko z listy HACS
 i dodaj ponownie jako własne repozytorium typu Integration.
 
@@ -50,9 +50,10 @@ Adres powrotu zawiera jednorazowy kod: nie udostępniaj go i nie publikuj logów
 
 ## Co liczy integracja
 
-Każdy bank ma 4 sensory: płatności kartą, płatności BLIK, ich łączną liczbę
-oraz nierozpoznane obciążenia. Wybrane rachunki w obrębie banku są sumowane.
-Suma oznacza liczbę płatności, nie sumę pieniędzy.
+Każdy bank ma sensory liczby płatności kartą i BLIK-iem oraz nierozpoznanych obciążeń.
+Zamiast sensora łącznej liczby płatności integracja tworzy sensory sumy kwot płatności
+za bieżący miesiąc, osobno dla każdej waluty (np. PLN i EUR). Kwoty w różnych
+walutach nigdy nie są dodawane do siebie. Wybrane rachunki w obrębie banku są sumowane.
 
 Uwzględnia tylko `BOOK` + `DBIT`, według daty księgowania (`booking_date`)
 w bieżącym miesiącu kalendarzowym w strefie czasowej HA. Zdarzenia oczekujące,
@@ -116,7 +117,7 @@ bez połączenia z rzeczywistym bankiem. Nie zastępują instalacji na HA OS.
 
 Błąd `no_banks` przy aktywnej aplikacji mógł wynikać z nieprawidłowego filtra:
 integracja sprawdzała `services` w obiektach banków, choć schemat ASPSPData
-nie zawiera takiego pola. Wersja 0.1.6 wysyła `service=AIS` i `psu_type=personal`
+nie zawiera takiego pola. Wersja 0.1.7 wysyła `service=AIS` i `psu_type=personal`
 bezpośrednio do `/aspsps?country=PL` i używa zwróconej listy bez tego filtra.
 Po aktualizacji zrestartuj HA i ponów dodawanie integracji. Ponowne podłączanie
 rachunków w panelu Enable Banking nie jest wymagane przez tę poprawkę.
@@ -162,3 +163,13 @@ autoryzację; puste `account_ids` są spodziewane przed jej zakończeniem.
 ## Icon
 
 Source SVG for the piggy bank and coin icon: `custom_components/enable_banking/assets/piggy-bank.svg`.
+
+
+## Sumy kwot płatności (0.1.7)
+
+Sensor „Płatności razem” zastąpiono sensorami sumy kwot kwalifikowanych płatności
+kartą i BLIK-iem, za bieżący miesiąc. Kwoty są grupowane według waluty transakcji;
+przykładowo HA pokaże osobne sensory PLN i EUR. Suma obejmuje tylko zaksięgowane
+obciążenia rozpoznane jako płatność kartą lub BLIK, z tymi samymi wykluczeniami
+co liczniki. Przy dodawaniu transakcji w nowej walucie integracja utworzy sensor
+tej waluty przy następnym odświeżeniu.

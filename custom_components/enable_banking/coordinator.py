@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+from decimal import Decimal
 import logging
 from aiohttp import ClientError
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -21,17 +22,20 @@ class BankingCoordinator(DataUpdateCoordinator):
             raise ConfigEntryAuthFailed("Zgoda bankowa wygasla")
         today = dt_util.now().date()
         start = today.replace(day=1)
-        totals = dict(card=0, blik=0, total=0, unknown=0, excluded=0)
+        totals = dict(card=0, blik=0, unknown=0, excluded=0)
+        amounts = {}
         try:
             for uid in self.entry.data["accounts"]:
                 rows = await self.client.transactions(uid, start.isoformat(), today.isoformat())
                 counts = count(rows, start, today)
                 for key in totals:
                     totals[key] += counts[key]
+                for currency, amount in counts["amounts"].items():
+                    amounts[currency] = amounts.get(currency, Decimal("0")) + amount
         except ApiError as err:
             if err.status in (401, 403, 404):
                 raise ConfigEntryAuthFailed("Odnów autoryzację lub sprawdź klucz aplikacji") from err
             raise UpdateFailed(str(err)) from err
         except (ClientError, TimeoutError, OSError, ValueError, KeyError) as err:
             raise UpdateFailed("Nie udalo sie pobrac kompletnej historii") from err
-        return {**totals, "month": start.strftime("%Y-%m"), "valid_until": self.entry.data["valid_until"]}
+        return {**totals, "amounts": amounts, "month": start.strftime("%Y-%m"), "valid_until": self.entry.data["valid_until"]}

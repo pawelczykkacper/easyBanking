@@ -155,7 +155,11 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "select_accounts"
             else:
                 # Do not persist account numbers, balances, descriptions or authorization URLs.
+                selected_currencies = {account["uid"]: account.get("currency")
+                                       for account in self.session_data["accounts"]
+                                       if account["uid"] in selected and account.get("currency")}
                 data = {**self.settings, "bank": self.bank, "accounts": selected,
+                        "account_currencies": selected_currencies,
                         "session_id": self.session_data["session_id"], "valid_until": (self.session_data.get("access") or {}).get("valid_until", self.valid_until)}
                 if self.target_entry:
                     return self.async_update_reload_and_abort(self.target_entry, data_updates=data)

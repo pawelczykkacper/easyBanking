@@ -1,5 +1,6 @@
 """Conservative description-based classification; unknown debits stay visible."""
 from datetime import date
+from decimal import Decimal, InvalidOperation
 import re
 import unicodedata
 
@@ -23,7 +24,8 @@ def classify(row):
     return "unknown"
 
 def count(rows, start, end):
-    result = dict(card=0, blik=0, total=0, unknown=0, excluded=0)
+    result = dict(card=0, blik=0, unknown=0, excluded=0)
+    amounts = {}
     seen = set()
     for row in rows:
         ident = row.get("transaction_id") or row.get("entry_reference")
@@ -38,6 +40,18 @@ def count(rows, start, end):
         except (KeyError, TypeError, ValueError):
             raise ValueError("Missing or invalid booking date") from None
         if start <= booked <= end:
-            result[classify(row)] += 1
-    result["total"] = result["card"] + result["blik"]
+            kind = classify(row)
+            result[kind] += 1
+            if kind in ("card", "blik"):
+                amount = row.get("transaction_amount") or {}
+                currency = amount.get("currency")
+                raw_value = amount.get("amount")
+                if not currency or raw_value is None:
+                    raise ValueError("Payment is missing amount or currency")
+                try:
+                    value = Decimal(str(raw_value))
+                except InvalidOperation:
+                    raise ValueError("Payment has invalid amount") from None
+                amounts[currency] = amounts.get(currency, Decimal("0")) + value
+    result["amounts"] = amounts
     return result

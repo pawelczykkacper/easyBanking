@@ -56,7 +56,8 @@
       "no_accounts": "No accounts returned. Link your accounts to this application in Enable Banking and retry.",
       "authorization_failed": "Could not create a session. Restart configuration to obtain a new authorization code.",
       "already_configured": "This bank is already configured for this application.",
-      "reauth_successful": "Authorization renewed."
+      "reauth_successful": "Authorization renewed.",
+      "authorization_pending": "Bank authorization is still pending. Start a new attempt, open the link in a new tab, and finish the confirmation at your bank."
     }
   }
 }

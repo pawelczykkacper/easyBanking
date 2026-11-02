@@ -100,7 +100,7 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.valid_until = (datetime.now(timezone.utc) + timedelta(seconds=min(maximum, 180*86400)-60)).isoformat()
                 try:
                     data = await self.client.request("POST", "/auth", json={
-                        "access": {"valid_until": self.valid_until},
+                        "access": {"transactions": True, "valid_until": self.valid_until},
                         "aspsp": {"name": name, "country": "PL"},
                         "state": self.state, "redirect_url": self.redirect, "psu_type": "personal"})
                     self.auth_url = data["url"]
@@ -128,6 +128,8 @@ class BankingFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 try:
                     self.session_data = await self.client.request("POST", "/sessions", json={"code": code})
+                    if self.session_data.get("status") == "PENDING_AUTHORIZATION":
+                        return self.async_abort(reason="authorization_pending")
                     if not self.session_data.get("accounts"):
                         return self.async_abort(reason="no_accounts")
                     return await self.async_step_accounts()

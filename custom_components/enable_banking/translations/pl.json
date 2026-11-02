@@ -56,7 +56,8 @@
       "no_accounts": "Brak rachunków. Dodaj je do tej aplikacji w panelu Enable Banking i ponów konfigurację.",
       "authorization_failed": "Nie udało się utworzyć sesji. Uruchom konfigurację ponownie, aby uzyskać nową autoryzację.",
       "already_configured": "Ten bank jest już skonfigurowany dla tej aplikacji.",
-      "reauth_successful": "Autoryzacja została odnowiona."
+      "reauth_successful": "Autoryzacja została odnowiona.",
+      "authorization_pending": "Autoryzacja nie została zakończona. Rozpocznij nową próbę, otwórz link w nowej karcie i dokończ potwierdzenie w Aliorze."
     }
   }
 }

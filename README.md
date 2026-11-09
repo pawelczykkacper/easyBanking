@@ -210,3 +210,8 @@ płatności kartą.
 
 Opisy rodzaju transakcji „fiz. użycie karty” są rozpoznawane jako płatności
 kartą.
+
+## Rodzaj transakcji „Płatność kartą online” (0.1.14)
+
+Opisy rodzaju transakcji „Płatność kartą online” są rozpoznawane jako płatności
+kartą.

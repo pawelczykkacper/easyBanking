@@ -28,7 +28,8 @@ class BankingCoordinator(DataUpdateCoordinator):
         try:
             for uid in self.entry.data["accounts"]:
                 rows = await self.client.transactions(uid, start.isoformat(), today.isoformat())
-                counts = count(rows, start, today)
+                currency = self.entry.data.get("account_currencies", {}).get(uid)
+                counts = count(rows, start, today, default_currency=currency)
                 for key in totals:
                     totals[key] += counts[key]
                 for currency, amount in counts["amounts"].items():

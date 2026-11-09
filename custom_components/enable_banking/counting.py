@@ -25,7 +25,7 @@ def classify(row):
         return "card"
     return "unknown"
 
-def count(rows, start, end):
+def count(rows, start, end, default_currency=None):
     result = dict(card=0, blik=0, unknown=0, excluded=0)
     amounts = {}
     unknown_details = []
@@ -54,15 +54,20 @@ def count(rows, start, end):
                     [code.get("description", ""), row.get("note") or "", *info]
                     if part and str(part).strip()) or "Brak opisu"
                 amount = row.get("transaction_amount") or {}
+                currency = amount.get("currency")
+                if not currency or currency == "XXX":
+                    currency = default_currency
                 unknown_details.append({
                     "date": booked.isoformat(),
                     "description": description[:500],
                     "amount": amount.get("amount"),
-                    "currency": amount.get("currency"),
+                    "currency": currency,
                 })
             if kind in ("card", "blik"):
                 amount = row.get("transaction_amount") or {}
                 currency = amount.get("currency")
+                if not currency or currency == "XXX":
+                    currency = default_currency
                 raw_value = amount.get("amount")
                 if not currency or raw_value is None:
                     raise ValueError("Payment is missing amount or currency")

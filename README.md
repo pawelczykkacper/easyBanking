@@ -194,3 +194,9 @@ jeśli nie zawierają słowa „płatność” lub „zakup”.
 Wpisy z opisem „Zaokrąglenie przekazane z rachunku” są pomijane. Opis
 zawierający „Lidl” jest rozpoznawany jako płatność kartą, także bez standardowego
 oznaczenia karty.
+
+## Waluta transakcji (0.1.11)
+
+Jeśli bank zwróci dla transakcji walutę `XXX` albo nie poda waluty, integracja
+używa waluty wybranego rachunku. Pozwala to prawidłowo sumować kwoty, gdy bank
+nie oznacza waluty transakcji, a rachunek jest prowadzony w PLN.

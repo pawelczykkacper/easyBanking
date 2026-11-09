@@ -1,7 +1,7 @@
 {
   "domain": "enable_banking",
   "name": "Enable Banking — liczniki płatności",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "config_flow": true,
   "documentation": "https://github.com/pawelczykkacper/easyBanking",
   "iot_class": "cloud_polling",

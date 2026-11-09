@@ -205,3 +205,8 @@ nie oznacza waluty transakcji, a rachunek jest prowadzony w PLN.
 
 Opisy rodzaju transakcji „Transakcja kartą debetową” są rozpoznawane jako
 płatności kartą.
+
+## Rodzaj transakcji „fiz. użycie karty” (0.1.13)
+
+Opisy rodzaju transakcji „fiz. użycie karty” są rozpoznawane jako płatności
+kartą.

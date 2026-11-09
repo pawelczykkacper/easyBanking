@@ -200,3 +200,8 @@ oznaczenia karty.
 Jeśli bank zwróci dla transakcji walutę `XXX` albo nie poda waluty, integracja
 używa waluty wybranego rachunku. Pozwala to prawidłowo sumować kwoty, gdy bank
 nie oznacza waluty transakcji, a rachunek jest prowadzony w PLN.
+
+## Rodzaj transakcji „Transakcja kartą debetową” (0.1.12)
+
+Opisy rodzaju transakcji „Transakcja kartą debetową” są rozpoznawane jako
+płatności kartą.

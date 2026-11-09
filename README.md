@@ -65,8 +65,10 @@ a nie częściowy wynik lub fałszywe zero. Po zmianie miesiąca stary wynik jes
 niedostępny do kolejnego odświeżenia; możesz wywołać `homeassistant.update_entity`.
 
 Rozpoznawanie jest ostrożną heurystyką na podstawie opisów. Płatność musi mieć
-opis płatności/zakupu i oznaczenie karty albo BLIK. Wypłaty, przelewy (w tym na
-telefon), opłaty, anulowania i zwroty są wykluczane. Sam napis „BLIK” nie wystarcza.
+opis płatności/zakupu i oznaczenie karty albo BLIK; wyjątkiem jest opis zawierający
+„Lidl”, rozpoznawany jako płatność kartą. Wypłaty, przelewy (w tym na telefon),
+opłaty, anulowania, zwroty i „Zaokrąglenie przekazane z rachunku” są wykluczane.
+Sam napis „BLIK” nie wystarcza.
 Inne obciążenia trafiają do „Nierozpoznane obciążenia”. Nie są to wyłącznie
 nierozpoznane płatności: mogą obejmować inne rodzaje obciążeń rachunku.
 
@@ -186,3 +188,9 @@ je zwrócił. Nie zapisujemy identyfikatorów transakcji ani danych rachunku w s
 
 Opisy zawierające „operacja kartą” są rozpoznawane jako płatności kartą, nawet
 jeśli nie zawierają słowa „płatność” lub „zakup”.
+
+## Wykluczenie zaokrągleń i rozpoznawanie Lidl (0.1.10)
+
+Wpisy z opisem „Zaokrąglenie przekazane z rachunku” są pomijane. Opis
+zawierający „Lidl” jest rozpoznawany jako płatność kartą, także bez standardowego
+oznaczenia karty.

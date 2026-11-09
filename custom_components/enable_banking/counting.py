@@ -14,12 +14,14 @@ def classify(row):
     if isinstance(info, str):
         info = [info]
     text = normalized(" ".join([code.get("description", ""), row.get("note") or "", *info]))
+    if "zaokraglenie przekazane z rachunku" in text:
+        return "excluded"
     if re.search(r"bankomat|wyplat|wplat|cash withdrawal|cash deposit|zwrot|refund|reversal|anul|prowizj|oplata|fee|przelew|transfer", text):
         return "excluded"
     payment = re.search(r"platnosc|platnosci|zakup|purchase|payment|transakcja bezgotowkowa|operacj\w*\s+(?:platnicz\w*\s+)?kart", text)
     if re.search(r"\bblik\b", text):
         return "blik" if payment else "unknown"
-    if payment and re.search(r"kart|card", text):
+    if (payment and re.search(r"kart|card", text)) or re.search(r"\blidl\b", text):
         return "card"
     return "unknown"
 
